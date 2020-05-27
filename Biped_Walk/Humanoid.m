@@ -54,19 +54,18 @@ classdef Humanoid
             arm(3, :) = arm(2, :) + [-obj.distArms*sin(theta2) 0 -obj.distArms*cos(theta2) 0];
         end
         
-        function [waist, torso] = findWaist(obj, point, theta)
+        function [waist, torso] = findWaist(obj, point, theta,phi)
             waist = zeros(3,4);
             waist(2, :) = point;
-            waist(1, :) = waist(2, :) - [0 obj.distWaist*cos(theta)/2 obj.distWaist*sin(theta)/2 0];
-            waist(3, :) = waist(2, :) + [0 obj.distWaist*cos(theta)/2 obj.distWaist*sin(theta)/2 0];
-            
-            torso = zeros(5, 4);
+            waist(1, :) = waist(2, :) - [obj.distWaist*cos(theta)*sin(phi)/2 obj.distWaist*cos(theta)*cos(phi)/2 obj.distWaist*sin(theta)/2 0];
+            waist(3, :) = waist(2, :) + [obj.distWaist*cos(theta)*sin(phi)/2 obj.distWaist*cos(theta)*cos(phi)/2 obj.distWaist*sin(theta)/2 0];
+	        torso = zeros(5, 4);
             torso(1, :) = waist(2, :);
-            torso(2, :) = torso(1, :) + [0, obj.distTorso*cos(pi/2 + theta) obj.distTorso*sin(pi/2 + theta) 0];
-            torso(3, :) = torso(2, :) + [0, 5*cos(pi/2 + theta) 5*sin(pi/2 + theta) 0];
+            torso(2, :) = torso(1, :) + [obj.distTorso*cos(pi/2 + theta)*sin(phi), obj.distTorso*cos(pi/2 + theta)*cos(phi) obj.distTorso*sin(pi/2 + theta) 0];
+            torso(3, :) = torso(2, :) + [5*cos(pi/2 + theta)*sin(phi), 5*cos(pi/2 + theta)*cos(phi) 5*sin(pi/2 + theta) 0];
             torso(4, :) = torso(2, :);
-            torso(5, :) = torso(2, :) - [0 obj.distWaist*cos(theta)/2 obj.distWaist*sin(theta)/2 0];
-            torso(6, :) = torso(2, :) + [0 obj.distWaist*cos(theta)/2 obj.distWaist*sin(theta)/2 0];
+            torso(5, :) = torso(2, :) - [obj.distWaist*cos(theta)*sin(phi)/2 obj.distWaist*cos(theta)*cos(phi)/2 obj.distWaist*sin(theta)/2 0];
+            torso(6, :) = torso(2, :) + [obj.distWaist*cos(theta)*sin(phi)/2 obj.distWaist*cos(theta)*cos(phi)/2 obj.distWaist*sin(theta)/2 0];
         end
         
         function leg = findLeg(obj, targetLeg)
