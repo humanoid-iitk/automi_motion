@@ -83,45 +83,26 @@ classdef Humanoid
                       0;
                       obj.distKnee_Foot*cos(2*atan((2*obj.distKnee_Foot*leg1_3(1) - (obj.distKnee_Foot^2*((- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2)*(obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee + obj.distHip_Knee^2 - leg1_3(1)^2 - leg1_3(3)^2))^(1/2))/(- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2) - (obj.distHip_Knee^2*((- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2)*(obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee + obj.distHip_Knee^2 - leg1_3(1)^2 - leg1_3(3)^2))^(1/2))/(- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2) + (leg1_3(1)^2*((- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2)*(obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee + obj.distHip_Knee^2 - leg1_3(1)^2 - leg1_3(3)^2))^(1/2))/(- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2) + (leg1_3(3)^2*((- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2)*(obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee + obj.distHip_Knee^2 - leg1_3(1)^2 - leg1_3(3)^2))^(1/2))/(- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2) + (2*obj.distKnee_Foot*obj.distHip_Knee*((- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2)*(obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee + obj.distHip_Knee^2 - leg1_3(1)^2 - leg1_3(3)^2))^(1/2))/(- obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*obj.distHip_Knee - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2))/(obj.distKnee_Foot^2 + 2*obj.distKnee_Foot*leg1_3(3) - obj.distHip_Knee^2 + leg1_3(1)^2 + leg1_3(3)^2)));
                       1];
-%             leg2_3 = testPoint((leg1_3)', obj.distKnee_Foot, obj.distHip_Knee);
-            leg(2, :) = T(leg(3,1:3))*Rx(t1)*(leg2_3);
-            
-            
-            
-            tp1=[1 0 0 -leg(3,1)
-                0 1 0 -leg(3,2)
-                0 0 1 -leg(3,3)
-                0 0 0 1];
+            leg(2, :) = T(leg(3,1:3))*Rx(t1)*(leg2_3);  
+           
+            tp=T(-leg(3,:));                            %translation of origin to foot
             u=leg(1,1)-leg(3,1);
             v=leg(1,2)-leg(3,2);
-            w=leg(1,3)-leg(3,3);                         
-            rx = [1,0,0,0;
-                0,w/(sqrt(v*v + w*w)),-v/(sqrt(v*v + w*w)),0;
-                0,v/(sqrt(v*v + w*w)),w/(sqrt(v*v + w*w)),0;
-                0,0,0,1];
-            ry = [(sqrt(v*v+w*w))/sqrt(u*u +v*v+w*w),0,-u/sqrt(u*u +v*v+ w*w),0;
-                0,1,0,0;
-                u/sqrt(u*u +v*v+ w*w),0,(sqrt(v*v+w*w))/sqrt(u*u +v*v+w*w),0;
-                0,0,0,1];
+            w=leg(1,3)-leg(3,3);
+            theta1 = atan(v/w);
+            theta2=atan(u/sqrt(v*v+w*w));
+            rx=Rx(theta1);
+            ry=Ry(-theta2);
             rz=Rz(rotation_angle);
-            n=inv(tp1)*inv(rx)*inv(ry)*rz*ry*rx*tp1;
-            leg(2,:) = leg(2,:)*(n');
+            n=inv(tp)*inv(rx)*inv(ry)*rz*ry*rx*tp;      %the equivalent matrix for rotation about an arbitrary axis
+            leg(2,:) = leg(2,:)*(n');                   %rotate knee(leg(2,:)) about the line joining hip and foot
             
-            rzp=inv(tp1)*rz*tp1;
+            rzp=inv(tp)*rz*tp;
             leg(4, :) = (leg(3, :) + [obj.footBase(1)/2 obj.footBase(2)/2 0 0])*(rzp');
             leg(5, :) = (leg(3, :) + [-obj.footBase(1)/2 obj.footBase(2)/2 0 0])*(rzp');
             leg(6, :) = (leg(3, :) + [-obj.footBase(1)/2 -obj.footBase(2)/2 0 0])*(rzp');
             leg(7, :) = (leg(3, :) + [obj.footBase(1)/2 -obj.footBase(2)/2 0 0])*(rzp');
             leg(8, :) = (leg(3, :) + [obj.footBase(1)/2 obj.footBase(2)/2 0 0])*(rzp');
-            %leg = obj.rotation(targetLeg,rotation_angle);
-%             T(leg(3,1:3))*Rx(t1)*(leg1_3)
-%             leg(1, 1:3)
-%             
-%             dist13 = norm(leg2_3(1:3))
-%             dist23 = norm(leg1_3(1:3) - leg2_3(1:3))
-%             
-%             dist1 = norm(leg(1,1:3) - leg(2,1:3))
-%             dist2 = norm(leg(2, 1:3) - leg(3, 1:3))
          end
         
          
@@ -131,25 +112,20 @@ classdef Humanoid
             else
                 leg = obj.leftLeg;
             end
-           tp1=[1 0 0 -leg(3,1)
-                0 1 0 -leg(3,2)
-                0 0 1 -leg(3,3)
-                0 0 0 1];
+            tp=T(-leg(3,:));                         %translation of origin to foot
             u=leg(1,1)-leg(3,1);
             v=leg(1,2)-leg(3,2);
-            w=leg(1,3)-leg(3,3);                         
-            rx = [1,0,0,0;
-                0,w/(sqrt(v*v + w*w)),-v/(sqrt(v*v + w*w)),0;
-                0,v/(sqrt(v*v + w*w)),w/(sqrt(v*v + w*w)),0;
-                0,0,0,1];
-            ry = [(sqrt(v*v+w*w))/sqrt(u*u +v*v+w*w),0,-u/sqrt(u*u +v*v+ w*w),0;
-                0,1,0,0;
-                u/sqrt(u*u +v*v+ w*w),0,(sqrt(v*v+w*w))/sqrt(u*u +v*v+w*w),0;
-                0,0,0,1];
+            w=leg(1,3)-leg(3,3);
+            theta1 = atan(v/w);
+            theta2=atan(u/sqrt(v*v+w*w));
+            rx=Rx(theta1);
+            ry=Ry(-theta2);
             rz=Rz(angle);
-            n=inv(tp1)*inv(rx)*inv(ry)*rz*ry*rx*tp1;
-            leg(2,:) = leg(2,:)*(n');
-             rzp=inv(tp1)*rz*tp1;
+        
+            n=inv(tp)*inv(rx)*inv(ry)*rz*ry*rx*tp;   %the equivalent matrix for rotation about an arbitrary axis
+            leg(2,:) = leg(2,:)*(n');                %rotate knee(leg(2,:)) about the line joining hip and foot
+            
+            rzp=inv(tp)*rz*tp;
             leg(4, :) = (leg(3, :) + [obj.footBase(1)/2 obj.footBase(2)/2 0 0])*(rzp');
             leg(5, :) = (leg(3, :) + [-obj.footBase(1)/2 obj.footBase(2)/2 0 0])*(rzp');
             leg(6, :) = (leg(3, :) + [-obj.footBase(1)/2 -obj.footBase(2)/2 0 0])*(rzp');
@@ -159,15 +135,6 @@ classdef Humanoid
         
         
         function pose = findBody(obj)
-%             [obj.waist, obj.torso] = obj.findWaist(centrePelvis, waistAngle,angleYaw);
-%             
-%             obj.rightLeg(1, :) = obj.waist(1, :);
-%             
-%             obj.leftLeg(1, :) = obj.waist(3, :);
-%             obj.rightLeg = obj.findLeg("right");
-%             obj.leftLeg = obj.findLeg("left");
-%             obj.rightLeg = obj.rotation("right",right_angle);
-%             obj.leftLeg = obj.rotation("left",left_angle);
             
             obj.rightArm(1, :) = obj.torso(5, :);
             obj.leftArm(1, :) = obj.torso(6, :);
@@ -185,33 +152,19 @@ classdef Humanoid
                 
         end
         
-        
-        
-%         function pose = init(obj)
-%             %INIT Summary of this method goes here
-%             %   Detailed explanation goes here
-%             centerPelvis = [0, 0, obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
-%             waistAngle =0;
-%             angleYaw=0;
-%             right_angle=0;
-%             left_angle=0;
-%             obj.rightLeg(3, :) = [0 -obj.distWaist/2 0 1];
-%             obj.leftLeg(3, :) = [0 obj.distWaist/2 0 1];
-%             
-%             pose = obj.findBody(centerPelvis, waistAngle,angleYaw,right_angle,left_angle);
-%             obj.pose = pose;
-%         end
        
-        function t = turn_sim(obj,yawAngle,right_angle,left_angle)
+        function t = turn_sim(obj,yawAngle,rollAngle,right_angle,left_angle)
            pause(10);
             centrePelvis = [0, 0, obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
             obj.rightLeg(3, :) = [0 -obj.distWaist/2 0 1];
             obj.leftLeg(3, :) = [0 obj.distWaist/2 0 1];
             
-            
+            %pose1
             [obj.waist, obj.torso] = obj.findWaist(centrePelvis,-pi/10,0);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
+            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.leftLeg = obj.findLeg( "left",0);
             obj.rightLeg = obj.findLeg( "right",0);
             
@@ -219,64 +172,77 @@ classdef Humanoid
             plot_body(obj.pose);
             pause(5);
             
-           obj.rightLeg(3, :) = [0 -obj.distWaist/2 5 1];
+            %pose2
+            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 5 1];
+            
             obj.rightLeg = obj.findLeg("right",0);
             obj.pose = obj.findBody();
             plot_body(obj.pose);
             pause(5);
             
+            %pose3
             obj.rightLeg=obj.rotation("right",right_angle);
             obj.pose = obj.findBody();
               plot_body(obj.pose);
             pause(5);
             
-            obj.rightLeg(3, :) = [0 -obj.distWaist/2 0 1];
+            %pose4
+            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
             obj.rightLeg = obj.findLeg( "right",right_angle);
             obj.pose = obj.findBody();
               plot_body(obj.pose);
             pause(5);
             
-            
+            %pose5
             [obj.waist, obj.torso] = obj.findWaist(centrePelvis, pi/10,0);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
+            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.leftLeg = obj.findLeg( "left",0);
             obj.rightLeg = obj.findLeg( "right",right_angle);
             obj.pose = obj.findBody();
-              plot_body(obj.pose);
+             plot_body(obj.pose);
             pause(5);
             
-            obj.leftLeg(3, :) = [0 obj.distWaist/2 5 1];
+            %pose6
+            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 5 1];
             obj.leftLeg = obj.findLeg("left",0);
             obj.pose = obj.findBody();
               plot_body(obj.pose);
              pause(5);
              
+             %pose7
             obj.leftLeg=obj.rotation("left",left_angle);
             obj.pose = obj.findBody();
               plot_body(obj.pose);
              pause(5);
              
+             %pose7
             [obj.waist, obj.torso] = obj.findWaist(centrePelvis, pi/10,yawAngle);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
+            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.rightLeg = obj.findLeg( "right",left_angle);
-              obj.leftLeg = obj.findLeg("left",left_angle);
-              
-              
-              obj.pose = obj.findBody();
+            obj.leftLeg = obj.findLeg("left",left_angle);
+            obj.pose = obj.findBody();
               plot_body(obj.pose);
               pause(5);
-               
-            obj.leftLeg(3, :) = [0 obj.distWaist/2 0 1];
+            
+              %pose8
+            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.leftLeg = obj.findLeg("left",left_angle);
             obj.pose = obj.findBody();
              plot_body(obj.pose);
              pause(5);
              
-            [obj.waist, obj.torso] = obj.findWaist(centrePelvis, 0,yawAngle);
+             %pose9
+            [obj.waist, obj.torso] = obj.findWaist(centrePelvis, rollAngle,yawAngle);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
+            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.leftLeg = obj.findLeg( "left",left_angle);
             obj.rightLeg = obj.findLeg("right",left_angle);
             obj.pose = obj.findBody();
