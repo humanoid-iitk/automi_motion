@@ -36,9 +36,8 @@ params = [  [15, 0];
             [25, 0];
             [10, 0]];
 m = Humanoid(params);
+m.turn_sim(obj,yawAngle,right_angle,left_angle);
 % m.rightLeg(3, :) = [0 0 0 1];
 % m.rightLeg(1, :) = [0 10 10 1];
 % m.rightLeg = m.findLeg("right");
 % plot_leg(m.rightLeg)
-m.pose = m.init()
-plot_body(m.pose);
