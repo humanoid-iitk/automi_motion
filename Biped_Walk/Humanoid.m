@@ -153,18 +153,19 @@ classdef Humanoid
         end
         
        
-        function t = turn_sim(obj,yawAngle,rollAngle,right_angle,left_angle)
-           pause(10);
+        function t = turn_sim(obj,yawAngle,rollAngle)
+           pause(5);
             centrePelvis = [0, 0, obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
             obj.rightLeg(3, :) = [0 -obj.distWaist/2 0 1];
             obj.leftLeg(3, :) = [0 obj.distWaist/2 0 1];
             
             %pose1
-            [obj.waist, obj.torso] = obj.findWaist(centrePelvis,-pi/10,0);
+            point=[obj.leftLeg(3, 1), obj.leftLeg(3, 2), obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
+            [obj.waist, obj.torso] = obj.findWaist(point,0,0);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
-            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
-            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
+           % obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            %obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.leftLeg = obj.findLeg( "left",0);
             obj.rightLeg = obj.findLeg( "right",0);
             
@@ -181,26 +182,28 @@ classdef Humanoid
             pause(5);
             
             %pose3
-            obj.rightLeg=obj.rotation("right",right_angle);
+            obj.rightLeg=obj.rotation("right",-yawAngle);
             obj.pose = obj.findBody();
               plot_body(obj.pose);
             pause(5);
             
             %pose4
-            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
-            obj.rightLeg = obj.findLeg( "right",right_angle);
+           % obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            obj.rightLeg(3, :) = [0 -obj.distWaist/2 0 1];
+            obj.rightLeg = obj.findLeg( "right",(-1*yawAngle));
             obj.pose = obj.findBody();
               plot_body(obj.pose);
             pause(5);
             
             %pose5
-            [obj.waist, obj.torso] = obj.findWaist(centrePelvis, pi/10,0);
+            point=[obj.rightLeg(3, 1), obj.rightLeg(3, 2), obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
+            [obj.waist, obj.torso] = obj.findWaist(point,0,0);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
-            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
-            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
+        %    obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+         %   obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
             obj.leftLeg = obj.findLeg( "left",0);
-            obj.rightLeg = obj.findLeg( "right",right_angle);
+            obj.rightLeg = obj.findLeg( "right",-yawAngle);
             obj.pose = obj.findBody();
              plot_body(obj.pose);
             pause(5);
@@ -213,38 +216,42 @@ classdef Humanoid
              pause(5);
              
              %pose7
-            obj.leftLeg=obj.rotation("left",left_angle);
+            obj.leftLeg=obj.rotation("left",(-1*yawAngle));
             obj.pose = obj.findBody();
               plot_body(obj.pose);
              pause(5);
              
              %pose7
-            [obj.waist, obj.torso] = obj.findWaist(centrePelvis, pi/10,yawAngle);
+            point=[obj.rightLeg(3, 1), obj.rightLeg(3, 2), obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
+            [obj.waist, obj.torso] = obj.findWaist(point,0,yawAngle);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
-            obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
-            obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
-            obj.rightLeg = obj.findLeg( "right",left_angle);
-            obj.leftLeg = obj.findLeg("left",left_angle);
+           % obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
+            %obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
+            obj.rightLeg = obj.findLeg( "right",(-1*yawAngle));
+            obj.leftLeg = obj.findLeg("left",(-1*yawAngle));
             obj.pose = obj.findBody();
               plot_body(obj.pose);
               pause(5);
             
               %pose8
+            [obj.waist, obj.torso] = obj.findWaist(centrePelvis,rollAngle,yawAngle);
             obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
-            obj.leftLeg = obj.findLeg("left",left_angle);
+            [obj.waist, obj.torso] = obj.findWaist(point,0,yawAngle);
+            obj.leftLeg = obj.findLeg("left",(-1*yawAngle));
             obj.pose = obj.findBody();
              plot_body(obj.pose);
              pause(5);
              
              %pose9
-            [obj.waist, obj.torso] = obj.findWaist(centrePelvis, rollAngle,yawAngle);
+           % point=[obj.rightLeg(3, 1), obj.rightLeg(3, 2), obj.distKnee_Foot + obj.distHip_Knee - 5, 1];
+            [obj.waist, obj.torso] = obj.findWaist(centrePelvis,rollAngle,yawAngle);
             obj.rightLeg(1, :) = obj.waist(1, :);
             obj.leftLeg(1, :) = obj.waist(3, :);
             obj.rightLeg(3, :) = [obj.waist(1, 1) obj.waist(1, 2) 0 1];
             obj.leftLeg(3, :) = [obj.waist(3, 1) obj.waist(3, 2) 0 1];
-            obj.leftLeg = obj.findLeg( "left",left_angle);
-            obj.rightLeg = obj.findLeg("right",left_angle);
+            obj.leftLeg = obj.findLeg( "left",(-1*yawAngle));
+            obj.rightLeg = obj.findLeg("right",(-1*yawAngle));
             obj.pose = obj.findBody();
              plot_body(obj.pose);
         end
