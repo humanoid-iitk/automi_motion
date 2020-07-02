@@ -179,7 +179,7 @@ for n = [1:steps]
         %centerPelvis
         %centerPelvis = bot.pose(2,:)
         plot_body(bot);
-        view(90,0)
+        %view(0,0)
         pause(0.0075)
         
         
